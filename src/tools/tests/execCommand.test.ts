@@ -91,6 +91,18 @@ describe('execCommand', () => {
       const result = await execCommand.execute({ command: 'ls' });
       expect(result).toContain(TEST_DIR_NAME);
     });
+
+    it('cat でファイル内容を読める', async () => {
+      const result = await execCommand.execute({
+        command: `cat ${TEST_DIR_NAME}/a.txt`,
+      });
+      expect(result).toContain('A');
+    });
+
+    it('pwd は引数なしで動く', async () => {
+      const result = await execCommand.execute({ command: 'pwd' });
+      expect(result).toContain('workspace');
+    });
   });
 
   describe('異常系: 危険文字チェック', () => {
@@ -126,9 +138,9 @@ describe('execCommand', () => {
       ).rejects.toThrow(/許可されていません/);
     });
 
-    it('cat も許可外', async () => {
+    it('echo は許可外', async () => {
       await expect(
-        execCommand.execute({ command: 'cat a.txt' })
+        execCommand.execute({ command: 'echo hello' })
       ).rejects.toThrow(/許可されていません/);
     });
 
