@@ -2,8 +2,9 @@
 export type Tool = {
   name: string;
   description: string;
+  needApproval: boolean;
   parameters: Record<string, unknown>; // JSON Schema 相当（型チェックは実行時）
-  execute: (args: Record<string, unknown>) => Promise<string>;
+  execute: (args: any) => Promise<string>;
 };
 
 // ツール呼び出しの型（LLM からの応答）
