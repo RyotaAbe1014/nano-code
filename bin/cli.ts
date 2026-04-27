@@ -6,6 +6,7 @@ import { readFile } from '../src/tools/readFile';
 import { writeFile } from '../src/tools/writeFile';
 import { editFile } from '../src/tools/editFile';
 import { execCommand } from '../src/tools/execCommand';
+import { parseArgs } from 'util';
 
 async function main() {
   const args = process.argv.slice(2);
@@ -16,6 +17,16 @@ async function main() {
     process.exit(1);
   }
 
+  const { values } = parseArgs({
+    args: args,
+    options: {
+      'yolo': { type: 'boolean', default: false }
+    },
+    allowPositionals: true
+  })
+
+  const yoloMode = values['yolo']
+
   const userPrompt = args.join(' ');
 
   // 環境変数からモデルを生成
@@ -25,13 +36,39 @@ async function main() {
   const workspaceRoot = path.resolve(process.cwd(), 'workspace');
 
   // プロンプトを読み込む（ベース + AGENTS.md）
-  const instructions = loadInstructions(workspaceRoot);
+  const baseInstructions = loadInstructions(workspaceRoot)
+  const issueDrivenInstructions = `${baseInstructions}
+あなたは GitHub Actions で実行される TypeScript コーディングエージェントです。
+現在の環境は CI 環境であり、あなたの仕事はコードを修正してプルリクエストを作成することです。
+トリガーとなった Issue 番号は ${process.env.ISSUE_NUMBER || '(なし)'} です（もし「(なし)」ならコメントは不要）。
+
+## ワークフロー
+以下の手順で作業を進めてください：
+
+1. **TODO リストの作成**: Issue の内容に基づき、以下の項目を含む TODO リストを作成する。
+   - [ ] Issue を理解する
+   - [ ] 対象ファイルを読み込む
+   - [ ] コードを修正する
+   - [ ] 修正結果をテストする
+   - [ ] Git にコミットしてプッシュする
+   - [ ] プルリクエストを作成する
+   - [ ] 元の Issue にコメントで報告する
+
+2. **タスクの実行**: TODO リストに従って作業を進める。
+   **重要**: ファイルを修正しただけでは終了ではない。必ず Git コミット、プッシュ、プルリクエスト作成まで行うこと。
+   - 最後に createIssueComment を使い、作成したプルリクエストの URL を元の Issue に投稿すること。
+
+3. **完了報告**: すべての TODO が完了したら、結果をまとめる。
+`
+
+  // Issue 駆動かローカル実行かでプロンプトを切り替え
+  const isIssueDriven = !!process.env.ISSUE_NUMBER;
 
   // エージェントを作成
   const agent = new Agent({
     name: 'nano-code',
     model,
-    instructions, // 外部ファイルから読み込んだプロンプト
+    instructions: isIssueDriven ? issueDrivenInstructions : baseInstructions,
     tools: {
       readFile,
       writeFile,
@@ -39,6 +76,7 @@ async function main() {
       execCommand,
     },
     maxSteps: 15,
+    approvalFunc: yoloMode ? async () => true : undefined
   });
 
   console.log('エージェント起動\n');
