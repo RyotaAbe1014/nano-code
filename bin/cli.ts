@@ -63,6 +63,7 @@ async function main() {
 
   // Issue 駆動かローカル実行かでプロンプトを切り替え
   const isIssueDriven = !!process.env.ISSUE_NUMBER;
+  console.log("isIssueDriven", isIssueDriven)
 
   // エージェントを作成
   const agent = new Agent({
