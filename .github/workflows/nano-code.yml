@@ -2,17 +2,27 @@
 name: Nano Code
 
 on:
+  issues:
+    types: [ opened ]
   workflow_dispatch:
     inputs:
       task:
-        description: 'Nano Code に実行させるタスク'
+        description: "Nano Code に実行させるタスク"
         required: false
-        default: 'これはテストです'
+        default: "これはテストです"
 
-permissions: {}
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
 
 jobs:
   nano-code:
+    # 公開リポジトリでの悪用を防ぐため、Issue 経由の起動はリポジトリ関係者のみに制限
+    if: >
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'issues' &&
+       contains(fromJSON('["OWNER","MEMBER","COLLABORATOR"]'), github.event.issue.author_association))
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -32,4 +42,6 @@ jobs:
           LLM_MODEL: ${{ vars.LLM_MODEL }}
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
           ISSUE_BODY: ${{ inputs.task }}
+          ISSUE_TEXT: ${{ github.event.issue.body }}
+          ISSUE_NUMBER: ${{ github.event.issue.number }}
         run: bun run agent --yolo
