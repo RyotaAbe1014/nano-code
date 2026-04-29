@@ -1,11 +1,12 @@
 FROM oven/bun:1.3
 
-# git curl sudoのみをインストール
+# 必要最小限のパッケージをインストール（git/curl/sudo/bubblewrap）
 RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     curl \
     ca-certificates \
     sudo \
+    bubblewrap \
     && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # 非rootユーザーを作成
