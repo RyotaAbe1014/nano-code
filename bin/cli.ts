@@ -75,7 +75,7 @@ async function main() {
       editFile,
       execCommand,
     },
-    maxSteps: 15,
+    maxSteps: 20,
     approvalFunc: yoloMode ? async () => true : undefined
   });
 
