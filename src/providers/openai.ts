@@ -72,7 +72,7 @@ export function createOpenAI(config?: {
         function: {
           name: tool.name,
           description: tool.description,
-          parameter: tool.parameters
+          parameters: tool.parameters
         }
       }))
 
