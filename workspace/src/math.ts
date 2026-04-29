@@ -12,3 +12,5 @@ export function divide(a: number, b: number): DivideResult {
   }
   return { ok: true, value: a / b };
 }
+
+export const VERSION: string = '0.1.0';
