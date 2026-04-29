@@ -27,7 +27,7 @@ async function main() {
 
   const yoloMode = values['yolo']
 
-  const userPrompt = args[1] || process.env.ISSUE_BODY || ''
+  const userPrompt = args[1] || process.env.ISSUE_BODY || process.env.ISSUE_TEXT || ''
 
   // 環境変数からモデルを生成
   const model = createModelFromEnv();
