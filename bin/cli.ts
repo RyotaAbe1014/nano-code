@@ -6,6 +6,8 @@ import { readFile } from '../src/tools/readFile';
 import { writeFile } from '../src/tools/writeFile';
 import { editFile } from '../src/tools/editFile';
 import { execCommand } from '../src/tools/execCommand';
+import { webFetch } from '../src/tools/webFetch';
+import { config } from '../src/config';
 import { parseArgs } from 'util';
 
 async function main() {
@@ -17,17 +19,24 @@ async function main() {
     process.exit(1);
   }
 
-  const { values } = parseArgs({
+  const { values, positionals } = parseArgs({
     args: process.argv.slice(2),
     options: {
-      'yolo': { type: 'boolean', default: false }
+      'yolo': { type: 'boolean', default: false },
+      'sandbox': { type: 'boolean', default: false },
+      'allowed-domains': { type: 'string' },
     },
     allowPositionals: true
   })
 
   const yoloMode = values['yolo']
 
-  const userPrompt = args[1] || process.env.ISSUE_BODY || process.env.ISSUE_TEXT || ''
+  config.sandbox = values['sandbox'] ?? false;
+  if (values['allowed-domains']) {
+    config.allowedDomains.push(...values['allowed-domains'].split(','));
+  }
+
+  const userPrompt = positionals[0] || process.env.ISSUE_BODY || process.env.ISSUE_TEXT || ''
 
   // 環境変数からモデルを生成
   const model = createModelFromEnv();
@@ -75,6 +84,7 @@ async function main() {
       writeFile,
       editFile,
       execCommand,
+      webFetch,
     },
     maxSteps: 20,
     verbose: isIssueDriven,
