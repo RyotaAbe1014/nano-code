@@ -18,7 +18,7 @@ async function main() {
   }
 
   const { values } = parseArgs({
-    args: args,
+    args: process.argv.slice(2),
     options: {
       'yolo': { type: 'boolean', default: false }
     },
@@ -27,7 +27,7 @@ async function main() {
 
   const yoloMode = values['yolo']
 
-  const userPrompt = args.join(' ');
+  const userPrompt = args[1] || process.env.ISSUE_BODY || ''
 
   // 環境変数からモデルを生成
   const model = createModelFromEnv();

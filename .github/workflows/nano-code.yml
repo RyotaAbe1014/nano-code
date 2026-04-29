@@ -11,10 +11,7 @@ on:
         required: false
         default: "これはテストです"
 
-permissions:
-  contents: write
-  pull-requests: write
-  issues: write
+permissions: {}
 
 jobs:
   nano-code:
@@ -27,6 +24,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+      issues: write
     steps:
       - uses: actions/checkout@v4
       - uses: oven-sh/setup-bun@v2
