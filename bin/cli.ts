@@ -77,6 +77,7 @@ async function main() {
       execCommand,
     },
     maxSteps: 20,
+    verbose: isIssueDriven,
     approvalFunc: yoloMode ? async () => true : undefined
   });
 
